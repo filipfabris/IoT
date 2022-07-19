@@ -1,13 +1,30 @@
+#!/usr/bin/env python
+
+################ UDP SERVER ################################
+
 import socket
 
-UDP_IP="10.223.204.201"
-UDP_PORT=7800
-#self.transport.getHandle().setsockopt(socket.SOL_SOCKET, 25, "ens192")
-sock = socket(socket.AF_INET,socket.SOCK_DGRAM)
+ip = '10.223.204.201'           # this is local host
+port = 7800    # start port here
 
-sock.bind((UDP_IP,UDP_PORT))
-msg=b"Hello"
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
 while True:
-    data, addr=sock.recvfrom(1024)
-    print("Poruka: {}".format(data))
-    sock.sendto(msg,addr)
+    try:
+        # server must bind to an ip address and port
+        sock.bind((ip, port))
+        print("Listening on Port:", port)
+        break
+    except Exception:
+        print("ERROR: Cannot connect to Port:", port)
+        port += 1
+
+try:
+    while True:
+        message, addr = sock.recvfrom(1024)  # OK someone pinged me.
+        print(f"received from {addr}: {message}")
+        sock.sendto(b"ACK", addr)
+except KeyboardInterrupt:
+    pass
+finally:
+    sock.close()
